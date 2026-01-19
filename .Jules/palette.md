@@ -1,0 +1,3 @@
+## 2024-05-22 - [React Native Web Accessibility Mapping]
+**Learning:** In React Native Web, `accessibilityRole="button"` combined with `accessibilityLabel` on a `TouchableOpacity` correctly maps to an HTML `<div role="button" aria-label="...">`. This allows testing tools like Playwright to locate the element using `getByRole('button', { name: '...' })`, ensuring the app is accessible to screen readers and testable via standard accessibility queries.
+**Action:** Always include `accessibilityRole="button"` on interactive `TouchableOpacity` elements intended to function as buttons, alongside a descriptive `accessibilityLabel`.
