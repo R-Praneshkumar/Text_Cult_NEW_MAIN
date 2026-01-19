@@ -139,7 +139,7 @@ const BuyerSignUpScreen = ({ navigation }) => {
       <StatusBar barStyle="light-content" />
       <View style={styles.overlay}>
         <SafeAreaView style={styles.safeArea}>
-          <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.container}>
             <View style={styles.formContainer}>
               <View style={styles.buttonRow}>
                 <TouchableOpacity style={[styles.tabButton, styles.activeTab]}>
@@ -158,125 +158,127 @@ const BuyerSignUpScreen = ({ navigation }) => {
                 </View>
               ) : null}
 
-              <TextInput
-                style={styles.input}
-                placeholder="First Name *"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                value={firstname}
-                onChangeText={setFirstname}
-              />
-
-              <TextInput
-                style={styles.input}
-                placeholder="Last Name *"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                value={lastname}
-                onChangeText={setLastname}
-              />
-
-              <TextInput
-                style={styles.input}
-                placeholder="Email *"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-              />
-
-              <TextInput
-                style={styles.input}
-                placeholder="Alternate Email (Optional)"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="email-address"
-                value={alternateEmail}
-                onChangeText={setAlternateEmail}
-                autoCapitalize="none"
-              />
-
-              <TextInput
-                style={styles.input}
-                placeholder="Phone Number *"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="phone-pad"
-                value={phoneno}
-                onChangeText={setPhoneno}
-              />
-
-              <TextInput
-                style={styles.input}
-                placeholder="Alternate Phone Number (Optional)"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="phone-pad"
-                value={alternatePhone}
-                onChangeText={setAlternatePhone}
-              />
-
-              <TextInput
-                style={styles.input}
-                placeholder="Company Name *"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                value={companyName}
-                onChangeText={setCompanyName}
-              />
-
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={buyerType}
-                  onValueChange={(itemValue) => setBuyerType(itemValue)}
-                  style={styles.picker}
-                  dropdownIconColor="rgba(255, 255, 255, 0.5)"
-                >
-                  {BUYER_TYPES.map((type) => (
-                    <Picker.Item key={type.value} label={type.label} value={type.value} />
-                  ))}
-                </Picker>
-              </View>
-
-              <View style={styles.passwordContainer}>
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <TextInput
-                  style={styles.passwordInput}
-                  placeholder="Password *"
+                  style={styles.input}
+                  placeholder="First Name *"
                   placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  secureTextEntry={!isPasswordVisible}
-                  value={password}
-                  onChangeText={setPassword}
+                  value={firstname}
+                  onChangeText={setFirstname}
                 />
-                <TouchableOpacity
-                  onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                >
-                  <MaterialIcons
-                    name={isPasswordVisible ? "visibility" : "visibility-off"}
-                    size={24}
-                    color="rgba(255, 255, 255, 0.5)"
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Last Name *"
+                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  value={lastname}
+                  onChangeText={setLastname}
+                />
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email *"
+                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  keyboardType="email-address"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                />
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Alternate Email (Optional)"
+                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  keyboardType="email-address"
+                  value={alternateEmail}
+                  onChangeText={setAlternateEmail}
+                  autoCapitalize="none"
+                />
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Phone Number *"
+                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  keyboardType="phone-pad"
+                  value={phoneno}
+                  onChangeText={setPhoneno}
+                />
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Alternate Phone Number (Optional)"
+                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  keyboardType="phone-pad"
+                  value={alternatePhone}
+                  onChangeText={setAlternatePhone}
+                />
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Company Name *"
+                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                  value={companyName}
+                  onChangeText={setCompanyName}
+                />
+
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={buyerType}
+                    onValueChange={(itemValue) => setBuyerType(itemValue)}
+                    style={styles.picker}
+                    dropdownIconColor="rgba(255, 255, 255, 0.5)"
+                  >
+                    {BUYER_TYPES.map((type) => (
+                      <Picker.Item key={type.value} label={type.label} value={type.value} />
+                    ))}
+                  </Picker>
+                </View>
+
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Password *"
+                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                    secureTextEntry={!isPasswordVisible}
+                    value={password}
+                    onChangeText={setPassword}
                   />
+                  <TouchableOpacity
+                    onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                  >
+                    <MaterialIcons
+                      name={isPasswordVisible ? "visibility" : "visibility-off"}
+                      size={24}
+                      color="rgba(255, 255, 255, 0.5)"
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Confirm Password *"
+                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                    secureTextEntry={!isPasswordVisible}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                  />
+                </View>
+
+                <TouchableOpacity
+                  style={[styles.signUpButton, isLoading && styles.disabledButton]}
+                  onPress={handleSignup}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color="#191919" />
+                  ) : (
+                    <Text style={styles.signUpButtonText}>Sign Up</Text>
+                  )}
                 </TouchableOpacity>
-              </View>
-
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  style={styles.passwordInput}
-                  placeholder="Confirm Password *"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  secureTextEntry={!isPasswordVisible}
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                />
-              </View>
-
-              <TouchableOpacity
-                style={[styles.signUpButton, isLoading && styles.disabledButton]}
-                onPress={handleSignup}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="#191919" />
-                ) : (
-                  <Text style={styles.signUpButtonText}>Sign Up</Text>
-                )}
-              </TouchableOpacity>
+              </ScrollView>
             </View>
-          </ScrollView>
+          </View>
         </SafeAreaView>
       </View>
     </ImageBackground>
@@ -298,7 +300,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_400Regular',
   },
   container: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
@@ -306,6 +308,7 @@ const styles = StyleSheet.create({
   formContainer: {
     width: '100%',
     maxWidth: 384,
+    maxHeight: '85%', // Prevent card from creating global scroll
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
