@@ -139,7 +139,7 @@ const BuyerSignUpScreen = ({ navigation }) => {
       <StatusBar barStyle="light-content" />
       <View style={styles.overlay}>
         <SafeAreaView style={styles.safeArea}>
-          <View style={styles.container}>
+          <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.formContainer}>
               <View style={styles.buttonRow}>
                 <TouchableOpacity style={[styles.tabButton, styles.activeTab]}>
@@ -206,7 +206,7 @@ const BuyerSignUpScreen = ({ navigation }) => {
 
                 <TextInput
                   style={styles.input}
-                  placeholder="Alternate Phone Number (Optional)"
+                  placeholder="Alternate Phone (Optional)"
                   placeholderTextColor="rgba(255, 255, 255, 0.5)"
                   keyboardType="phone-pad"
                   value={alternatePhone}
@@ -278,7 +278,7 @@ const BuyerSignUpScreen = ({ navigation }) => {
                 </TouchableOpacity>
               </ScrollView>
             </View>
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </View>
     </ImageBackground>
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_400Regular',
   },
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   formContainer: {
     width: '100%',
     maxWidth: 384,
-    maxHeight: '85%', // Prevent card from creating global scroll
+    maxHeight: '85%',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
