@@ -6,53 +6,50 @@ import {
   TextInput,
   TouchableOpacity,
   ImageBackground,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../context/AuthContext';
+import { authService } from '../api/authService';
 
 const LoginScreen = ({ navigation }) => {
   // Form state
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [emailUserType, setEmailUserType] = useState('buyer');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const { developerLogin } = useAuth(); // FIX: Call hook at top level
+  const [phoneno, setPhoneno] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Auth context
-  const { login } = useAuth();
-
-  // Handle email login
-  const handleEmailLogin = async () => {
+  // Handle OTP request
+  const handleGetOtp = async () => {
     setErrorMessage('');
 
-    // Basic validation
-    if (!email.trim()) {
-      setErrorMessage('Please enter your email');
+    if (!phoneno.trim()) {
+      setErrorMessage('Please enter your phone number');
       return;
     }
-    if (!password) {
-      setErrorMessage('Please enter your password');
+
+    if (phoneno.trim().length < 10) {
+      setErrorMessage('Please enter a valid phone number');
       return;
     }
 
     setIsLoading(true);
     try {
-      const result = await login(email.trim(), password);
-      if (result.success) {
-        // Navigation is handled automatically by AuthContext state change or we can force it
-        // The App.js navigation structure might not be reactive yet, so we navigate manually for now
-        navigation.navigate('BuyerHomeScreen');
-      } else {
-        setErrorMessage(result.error || 'Login failed. Please check your credentials.');
-      }
+      const formattedPhone = phoneno.trim().startsWith('+') ? phoneno.trim() : `+91${phoneno.trim()}`;
+
+      // Send OTP for Login (Login OTP Flow)
+      await authService.sendLoginOtp({ phoneno: formattedPhone });
+
+      // Navigate to OTP screen
+      // We pass 'isLogin: true' to let OTPScreen know the context if needed, though mostly handled by verifyOtp logic transparently
+      navigation.navigate('OTPScreen', { phoneno: formattedPhone, isLogin: true });
+
     } catch (error) {
-      setErrorMessage('An unexpected error occurred. Please try again.');
+      setErrorMessage(error.message || 'Failed to send OTP. Please try again.');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -86,66 +83,7 @@ const LoginScreen = ({ navigation }) => {
                 </View>
               ) : null}
 
-              {/* Email Form */}
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                keyboardType="email-address"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-              />
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  style={styles.passwordInput}
-                  placeholder="Password"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  secureTextEntry={!isPasswordVisible}
-                  value={password}
-                  onChangeText={setPassword}
-                />
-                <TouchableOpacity
-                  onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                >
-                  <MaterialIcons
-                    name={isPasswordVisible ? "visibility" : "visibility-off"}
-                    size={24}
-                    color="rgba(255, 255, 255, 0.5)"
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={emailUserType}
-                  onValueChange={(itemValue) => setEmailUserType(itemValue)}
-                  style={styles.picker}
-                  dropdownIconColor="rgba(255, 255, 255, 0.5)"
-                >
-                  <Picker.Item label="Login as Buyer" value="buyer" />
-                  <Picker.Item label="Login as Seller" value="seller" />
-                </Picker>
-              </View>
-
-              <TouchableOpacity
-                style={[styles.loginButton, isLoading && styles.disabledButton]}
-                onPress={handleEmailLogin}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="#191919" />
-                ) : (
-                  <Text style={styles.loginButtonText}>Login with Email</Text>
-                )}
-              </TouchableOpacity>
-
-              <View style={styles.dividerContainer}>
-                <View style={styles.divider} />
-                <Text style={styles.dividerText}>OR</Text>
-                <View style={styles.divider} />
-              </View>
-
-              {/* Phone Form Placeholder */}
+              {/* Phone Input */}
               <View style={styles.phoneInputContainer}>
                 <Text style={styles.countryCode}>+91</Text>
                 <TextInput
@@ -153,18 +91,34 @@ const LoginScreen = ({ navigation }) => {
                   placeholder="Phone Number"
                   placeholderTextColor="rgba(255, 255, 255, 0.5)"
                   keyboardType="phone-pad"
-                  editable={false}
+                  value={phoneno}
+                  onChangeText={setPhoneno}
                 />
               </View>
 
-              <TouchableOpacity style={[styles.otpButton, { opacity: 0.7 }]} disabled={true}>
-                <Text style={styles.otpButtonText}>OTP Login (Coming Soon)</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => navigation.navigate('ForgotPasswordScreen')}>
-                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              <TouchableOpacity
+                style={[styles.loginButton, isLoading && styles.disabledButton]}
+                onPress={handleGetOtp}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#191919" />
+                ) : (
+                  <Text style={styles.loginButtonText}>Get OTP</Text>
+                )}
               </TouchableOpacity>
             </View>
+
+            {/* Developer Bypass Button */}
+            <TouchableOpacity
+              style={{ marginTop: 20, padding: 10 }}
+              onPress={developerLogin}
+            >
+              <Text style={{ color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>
+                Developer Skip (No OTP)
+              </Text>
+            </TouchableOpacity>
+
           </ScrollView>
         </SafeAreaView>
       </View>
@@ -316,7 +270,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: 16,
-    opacity: 0.6,
+    marginBottom: 16,
   },
   countryCode: {
     color: 'rgba(255, 255, 255, 0.5)',

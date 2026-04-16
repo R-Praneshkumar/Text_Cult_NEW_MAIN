@@ -107,6 +107,22 @@ export const AuthProvider = ({ children }) => {
     };
 
     /**
+     * Verify OTP and login
+     */
+    const verifyOtp = async (payload) => {
+        setError(null);
+        try {
+            const result = await authService.verifyOtp(payload);
+            await tokenStorage.saveTokens(result.accessToken, result.refreshToken);
+            setUser({ isLoggedIn: true });
+            return { success: true };
+        } catch (err) {
+            setError(err.message);
+            return { success: false, error: err.message };
+        }
+    };
+
+    /**
      * Logout the current user
      */
     const logout = async () => {
@@ -128,8 +144,13 @@ export const AuthProvider = ({ children }) => {
         error,
         login,
         signup,
+        verifyOtp,
         logout,
         clearError,
+        developerLogin: async () => {
+            setUser({ isLoggedIn: true, name: 'Test User', phone: '+919999999999' });
+            await tokenStorage.saveTokens('dev-access-token', 'dev-refresh-token');
+        },
         isAuthenticated: !!user?.isLoggedIn,
     };
 

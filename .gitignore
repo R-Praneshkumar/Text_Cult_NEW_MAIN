@@ -42,3 +42,24 @@ yarn-error.*
 
 # Log files
 *.log
+
+# Test & debug scripts (not production code)
+api_check.js
+check_public_access.js
+comprehensive_backend_test.js
+debug_product_api.js
+explore_api.js
+find_valid_variant.js
+probe_price_payload.js
+probe_price_schema.js
+probe_product_details.js
+test_custom_sku_case.js
+test_product_flow.js
+test_sku_yr.js
+test_specific_number.js
+verify_backend_now.js
+verify_exact_match.js
+verify_sku_format.js
+verify_spec.js
+read_docx.py
+read_pdf.py

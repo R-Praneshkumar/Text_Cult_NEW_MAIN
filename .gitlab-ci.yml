@@ -1,0 +1,24 @@
+
+image: node:latest
+
+stages:
+  - build
+
+cache:
+  paths:
+    - node_modules/
+
+before_script:
+  - npm install --global eas-cli
+  - npm install
+
+build-android:
+  stage: build
+  script:
+    - npx eas build --platform android --profile preview --non-interactive
+  only:
+    - main
+  variables:
+    # You must add EXPO_TOKEN to your GitLab Repository Settings > CI/CD > Variables
+    # Get token from: https://expo.dev/settings/access-tokens
+    EXPO_TOKEN: $EXPO_TOKEN 

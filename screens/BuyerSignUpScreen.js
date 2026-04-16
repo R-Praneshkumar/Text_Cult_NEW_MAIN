@@ -6,29 +6,27 @@ import {
   TextInput,
   TouchableOpacity,
   ImageBackground,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useAuth } from '../context/AuthContext';
+import { authService } from '../api/authService';
 import { BUYER_TYPES } from '../api/config';
 
 const BuyerSignUpScreen = ({ navigation }) => {
   // Form state
   const [email, setEmail] = useState('');
   const [alternateEmail, setAlternateEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phoneno, setPhoneno] = useState('');
   const [alternatePhone, setAlternatePhone] = useState('');
-  const [buyerType, setBuyerType] = useState('RETAILER');
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [buyerType, setBuyerType] = useState('WEAVER');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -81,22 +79,10 @@ const BuyerSignUpScreen = ({ navigation }) => {
       setErrorMessage('Please enter your company name');
       return false;
     }
-    if (!password) {
-      setErrorMessage('Please enter a password');
-      return false;
-    }
-    if (password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters');
-      return false;
-    }
-    if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
-      return false;
-    }
     return true;
   };
 
-  // Handle signup
+  // Handle signup (Send OTP)
   const handleSignup = async () => {
     setErrorMessage('');
 
@@ -106,25 +92,27 @@ const BuyerSignUpScreen = ({ navigation }) => {
 
     setIsLoading(true);
     try {
-      const result = await signup({
-        email: email.trim(),
-        password,
+      const userData = {
+        username: email.trim(),
         firstname: firstname.trim(),
         lastname: lastname.trim(),
         companyName: companyName.trim(),
         phoneno: phoneno.trim().startsWith('+') ? phoneno.trim() : `+91${phoneno.trim()}`,
         buyerType,
-        alternateEmail: alternateEmail.trim(),
-        alternatePhone: alternatePhone.trim(),
-      });
+        // API spec for send-otp triggers (Page 1) does not list alternateEmail, 
+        // but we'll keep it if backend supports it, or it might be ignored.
+        // Spec lists 'alternatePhoneNo'.
+        alternatePhoneNo: alternatePhone.trim(),
+        // Backend DB requires 'category' (violates not-null), despite spec saying optional.
+        category: 'General',
+      };
 
-      if (result.success) {
-        navigation.navigate('BuyerHomeScreen');
-      } else {
-        setErrorMessage(result.error || 'Signup failed. Please try again.');
-      }
+      await authService.sendSignupOtp(userData);
+
+      navigation.navigate('OTPScreen', { userData, isLogin: false });
+
     } catch (error) {
-      setErrorMessage('An unexpected error occurred. Please try again.');
+      setErrorMessage(error.message || 'Failed to send OTP. Please try again.');
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -139,7 +127,7 @@ const BuyerSignUpScreen = ({ navigation }) => {
       <StatusBar barStyle="light-content" />
       <View style={styles.overlay}>
         <SafeAreaView style={styles.safeArea}>
-          <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.container}>
             <View style={styles.formContainer}>
               <View style={styles.buttonRow}>
                 <TouchableOpacity style={[styles.tabButton, styles.activeTab]}>
@@ -158,7 +146,10 @@ const BuyerSignUpScreen = ({ navigation }) => {
                 </View>
               ) : null}
 
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              >
                 <TextInput
                   style={styles.input}
                   placeholder="First Name *"
@@ -234,36 +225,7 @@ const BuyerSignUpScreen = ({ navigation }) => {
                   </Picker>
                 </View>
 
-                <View style={styles.passwordContainer}>
-                  <TextInput
-                    style={styles.passwordInput}
-                    placeholder="Password *"
-                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                    secureTextEntry={!isPasswordVisible}
-                    value={password}
-                    onChangeText={setPassword}
-                  />
-                  <TouchableOpacity
-                    onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-                  >
-                    <MaterialIcons
-                      name={isPasswordVisible ? "visibility" : "visibility-off"}
-                      size={24}
-                      color="rgba(255, 255, 255, 0.5)"
-                    />
-                  </TouchableOpacity>
-                </View>
 
-                <View style={styles.passwordContainer}>
-                  <TextInput
-                    style={styles.passwordInput}
-                    placeholder="Confirm Password *"
-                    placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                    secureTextEntry={!isPasswordVisible}
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                  />
-                </View>
 
                 <TouchableOpacity
                   style={[styles.signUpButton, isLoading && styles.disabledButton]}
@@ -273,12 +235,12 @@ const BuyerSignUpScreen = ({ navigation }) => {
                   {isLoading ? (
                     <ActivityIndicator color="#191919" />
                   ) : (
-                    <Text style={styles.signUpButtonText}>Sign Up</Text>
+                    <Text style={styles.signUpButtonText}>Get OTP</Text>
                   )}
                 </TouchableOpacity>
               </ScrollView>
             </View>
-          </ScrollView>
+          </View>
         </SafeAreaView>
       </View>
     </ImageBackground>
@@ -300,7 +262,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Manrope_400Regular',
   },
   container: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
@@ -308,7 +270,7 @@ const styles = StyleSheet.create({
   formContainer: {
     width: '100%',
     maxWidth: 384,
-    maxHeight: '85%',
+    height: 585, // Increased to 575px as requested
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -378,22 +340,7 @@ const styles = StyleSheet.create({
   picker: {
     color: 'white',
   },
-  passwordContainer: {
-    height: 48,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 16,
-  },
-  passwordInput: {
-    flex: 1,
-    height: '100%',
-    color: 'white',
-  },
+
   signUpButton: {
     marginTop: 16,
     height: 56,

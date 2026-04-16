@@ -6,6 +6,11 @@ export const API_CONFIG = {
         SIGNUP: '/user/action/signup',
         LOGIN: '/user/action/login',
         REFRESH_TOKEN: '/user/action/refresh-token', // Append /{refreshToken}
+        SIGNUP_OTP: '/user/action/signup-otp',
+        LOGIN_OTP: '/user/action/login-otp',
+        VERIFY_OTP: '/user/action/verify-otp',
+        GET_PROFILE: '/user/action/profile',
+        UPDATE_PROFILE: '/user/action/update',
     },
 
     // Request timeout in milliseconds
@@ -14,8 +19,5 @@ export const API_CONFIG = {
 
 // Valid buyer types for signup
 export const BUYER_TYPES = [
-    { label: 'Retailer', value: 'RETAILER' },
-    { label: 'Wholesaler', value: 'WHOLESALER' },
-    { label: 'Manufacturer', value: 'MANUFACTURER' },
-    { label: 'Distributor', value: 'DISTRIBUTOR' },
+    { label: 'Weaver', value: 'WEAVER' },
 ];

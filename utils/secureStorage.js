@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const TOKEN_KEYS = {
     ACCESS_TOKEN: 'texcult_access_token',
@@ -6,22 +6,22 @@ const TOKEN_KEYS = {
 };
 
 /**
- * Token storage utility using AsyncStorage
- * Note: Switched from SecureStore to avoid native module issues in Expo Go during dev
+ * Token storage utility using expo-secure-store
+ * Enforces hardware-backed encryption for production security.
  */
 export const tokenStorage = {
     /**
-     * Save both access and refresh tokens
+     * Save both access and refresh tokens securely
      */
     async saveTokens(accessToken, refreshToken) {
         try {
-            await AsyncStorage.multiSet([
-                [TOKEN_KEYS.ACCESS_TOKEN, accessToken],
-                [TOKEN_KEYS.REFRESH_TOKEN, refreshToken],
-            ]);
+            await SecureStore.setItemAsync(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
+            if (refreshToken) {
+                await SecureStore.setItemAsync(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
+            }
             return true;
         } catch (error) {
-            console.error('Failed to save tokens:', error);
+            console.error('Failed to save tokens securely:', error);
             return false;
         }
     },
@@ -31,7 +31,7 @@ export const tokenStorage = {
      */
     async getAccessToken() {
         try {
-            return await AsyncStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
+            return await SecureStore.getItemAsync(TOKEN_KEYS.ACCESS_TOKEN);
         } catch (error) {
             console.error('Failed to get access token:', error);
             return null;
@@ -43,7 +43,7 @@ export const tokenStorage = {
      */
     async getRefreshToken() {
         try {
-            return await AsyncStorage.getItem(TOKEN_KEYS.REFRESH_TOKEN);
+            return await SecureStore.getItemAsync(TOKEN_KEYS.REFRESH_TOKEN);
         } catch (error) {
             console.error('Failed to get refresh token:', error);
             return null;
@@ -63,10 +63,8 @@ export const tokenStorage = {
      */
     async clearTokens() {
         try {
-            await AsyncStorage.multiRemove([
-                TOKEN_KEYS.ACCESS_TOKEN,
-                TOKEN_KEYS.REFRESH_TOKEN,
-            ]);
+            await SecureStore.deleteItemAsync(TOKEN_KEYS.ACCESS_TOKEN);
+            await SecureStore.deleteItemAsync(TOKEN_KEYS.REFRESH_TOKEN);
             return true;
         } catch (error) {
             console.error('Failed to clear tokens:', error);

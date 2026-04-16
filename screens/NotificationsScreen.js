@@ -35,6 +35,13 @@ const renderItem = ({ item }) => <NotificationItem item={item} />;
 const keyExtractor = item => item.id;
 
 const NotificationsScreen = ({ navigation }) => {
+  const [notificationList, setNotificationList] = React.useState(notifications);
+
+  const handleClearAll = () => {
+    setNotificationList([]);
+    // API Call would go here if backend supported it
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" />
@@ -49,12 +56,12 @@ const NotificationsScreen = ({ navigation }) => {
         <TouchableOpacity>
           <Text style={styles.actionText}>Mark all as read</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleClearAll}>
           <Text style={[styles.actionText, styles.clearAllText]}>Clear all</Text>
         </TouchableOpacity>
       </View>
       <FlatList
-        data={notifications}
+        data={notificationList}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ListEmptyComponent={
